@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.List;
 import java.util.function.Function;
 
 @Component
@@ -17,11 +18,12 @@ public class JwtUtils {
     private final SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS256); // Generates a secure key for HS256
 
     // Generate a JWT token with expiration time
-    public String generateToken(String username) {
+    public String generateToken(String username, String role) {
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // Token valid for 10 hours
+                .claim("role", role)
                 .signWith(key) // Use the secure key here
                 .compact();
     }
@@ -29,6 +31,12 @@ public class JwtUtils {
     // Extract username from the token
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    // Extract role from the token
+    public String extractRole(String token) {
+        Claims claims = extractAllClaims(token);
+        return claims.get("role", String.class);
     }
 
     // Extract expiration time from the token

@@ -23,8 +23,8 @@ public class ProductController {
         return productService.getAllProducts();
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/products")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Product> addProduct(@RequestBody Product product) {
         productService.addProduct(product);
         return new ResponseEntity<>(product, HttpStatus.CREATED);
