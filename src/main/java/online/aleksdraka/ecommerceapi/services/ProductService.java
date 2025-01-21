@@ -1,5 +1,6 @@
 package online.aleksdraka.ecommerceapi.services;
 
+import online.aleksdraka.ecommerceapi.annotations.RequiresRole;
 import online.aleksdraka.ecommerceapi.models.Product;
 import online.aleksdraka.ecommerceapi.repositories.ProductRepository;
 import org.springframework.http.HttpStatus;
@@ -25,38 +26,30 @@ public class ProductService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
-    public ResponseEntity<?> addProduct(Product product, String role) {
-        System.out.println("Authenticated user: " + role);
-        if (role.equals("ROLE_ADMIN")) {
-            productRepository.save(product);
-            return new ResponseEntity<>(product, HttpStatus.CREATED);
-        }
-        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+    @RequiresRole("ROLE_ADMIN")
+    public ResponseEntity<Product> addProduct(Product product) {
+        productRepository.save(product);
+        return new ResponseEntity<>(product, HttpStatus.CREATED);
     }
 
-    public ResponseEntity<?> updateProduct(Long id, Product newProduct, String role) {
-        if (role.equals("ROLE_ADMIN")) {
-            Product product = productRepository.findById(id)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    @RequiresRole("ROLE_ADMIN")
+    public ResponseEntity<Product> updateProduct(Long id, Product newProduct) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-            product.setName(newProduct.getName());
-            product.setDescription(newProduct.getDescription());
-            product.setPrice(newProduct.getPrice());
-            product.setQuantity(newProduct.getQuantity());
-            productRepository.save(product);
-            return new ResponseEntity<>(product, HttpStatus.CREATED);
-        }
-        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        product.setName(newProduct.getName());
+        product.setDescription(newProduct.getDescription());
+        product.setPrice(newProduct.getPrice());
+        product.setQuantity(newProduct.getQuantity());
+        productRepository.save(product);
+        return new ResponseEntity<>(product, HttpStatus.CREATED);
     }
 
-    public ResponseEntity<?> deleteProduct(Long id, String role) {
-        if (role.equals("ROLE_ADMIN")) {
-            Product product = productRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Product not found"));
-
-            productRepository.delete(product);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+    @RequiresRole("ROLE_ADMIN")
+    public ResponseEntity<?> deleteProduct(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+        productRepository.delete(product);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

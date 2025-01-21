@@ -30,22 +30,16 @@ public class ProductController {
 
     @PostMapping("/products")
     public ResponseEntity<?> addProduct(@RequestBody Product product) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String role = authentication.getAuthorities().iterator().next().getAuthority();
-        return  productService.addProduct(product, role);
+        return  productService.addProduct(product);
     }
 
     @PutMapping("/products/{id}")
     public ResponseEntity<?> updateProduct(@PathVariable Long id, @RequestBody Product newProduct) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String role = authentication.getAuthorities().iterator().next().getAuthority();
-        return productService.updateProduct(id, newProduct, role);
+        return productService.updateProduct(id, newProduct);
     }
 
     @DeleteMapping("/products/{id}")
     public ResponseEntity<?> deleteProduct(@PathVariable Long id) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String role = authentication.getAuthorities().iterator().next().getAuthority();
-        return productService.deleteProduct(id, role);
+        return productService.deleteProduct(id);
     }
 }

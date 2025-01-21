@@ -1,4 +1,4 @@
-﻿package online.aleksdraka.ecommerceapi.config;
+package online.aleksdraka.ecommerceapi.config;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
