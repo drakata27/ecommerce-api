@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,6 +43,15 @@ public class AuthController {
                                 user.getPassword()
                         ));
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getUsername());
-        return jwtUtils.generateToken(userDetails.getUsername());
+
+        // Extract the role from the authorities (assuming it's the first one)
+        String role = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .findFirst()
+                .orElse("ROLE_USER");
+
+        System.out.println("role" + role);
+
+        return jwtUtils.generateToken(userDetails.getUsername(), role);
     }
 }

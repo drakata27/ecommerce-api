@@ -2,9 +2,9 @@ package online.aleksdraka.ecommerceapi.controllers;
 
 import online.aleksdraka.ecommerceapi.models.Product;
 import online.aleksdraka.ecommerceapi.services.ProductService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,10 +23,23 @@ public class ProductController {
         return productService.getAllProducts();
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/products/{id}")
+    public Product getProduct(@PathVariable Long id) {
+        return productService.getProductById(id);
+    }
+
     @PostMapping("/products")
-    public ResponseEntity<Product> addProduct(@RequestBody Product product) {
-        productService.addProduct(product);
-        return new ResponseEntity<>(product, HttpStatus.CREATED);
+    public ResponseEntity<?> addProduct(@RequestBody Product product) {
+        return  productService.addProduct(product);
+    }
+
+    @PutMapping("/products/{id}")
+    public ResponseEntity<?> updateProduct(@PathVariable Long id, @RequestBody Product newProduct) {
+        return productService.updateProduct(id, newProduct);
+    }
+
+    @DeleteMapping("/products/{id}")
+    public ResponseEntity<?> deleteProduct(@PathVariable Long id) {
+        return productService.deleteProduct(id);
     }
 }

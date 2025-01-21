@@ -3,6 +3,8 @@ package online.aleksdraka.ecommerceapi.config;
 
 import online.aleksdraka.ecommerceapi.services.CustomUserDetailsService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -15,6 +17,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -29,7 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.jwtUtils = jwtUtils;
     }
 
-    private final Map<String, UserDetails> userDetailsCache = new ConcurrentHashMap<String, UserDetails>();
+    private final Map<String, UserDetails> userDetailsCache = new ConcurrentHashMap<>();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -38,11 +41,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authorizationHeader = request.getHeader("Authorization");
         String jwt = null;
         String username = null;
+        String role = null;
 
         // Extract JWT token from the header
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jwt = authorizationHeader.substring(7);
             username = jwtUtils.extractUsername(jwt);
+            role = jwtUtils.extractRole(jwt);
         }
 
         // If username is found and the user is not authenticated yet
@@ -60,8 +65,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // Validate the token and set authentication if valid
             if (jwtUtils.validateToken(jwt, userDetails.getUsername())) {
+                GrantedAuthority authority = new SimpleGrantedAuthority(role);
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
+                        userDetails, null, List.of(authority));
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 // Set the authentication in the security context
