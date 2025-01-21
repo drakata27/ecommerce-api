@@ -50,6 +50,8 @@ public class AuthController {
                 .findFirst()
                 .orElse("ROLE_USER");
 
+        System.out.println("role" + role);
+
         return jwtUtils.generateToken(userDetails.getUsername(), role);
     }
 }
