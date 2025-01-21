@@ -35,11 +35,17 @@ public class ProductController {
         return  productService.addProduct(product, role);
     }
 
+    @PutMapping("/products/{id}")
+    public ResponseEntity<?> updateProduct(@PathVariable Long id, @RequestBody Product newProduct) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String role = authentication.getAuthorities().iterator().next().getAuthority();
+        return productService.updateProduct(id, newProduct, role);
+    }
+
     @DeleteMapping("/products/{id}")
     public ResponseEntity<?> deleteProduct(@PathVariable Long id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String role = authentication.getAuthorities().iterator().next().getAuthority();
         return productService.deleteProduct(id, role);
     }
-
 }

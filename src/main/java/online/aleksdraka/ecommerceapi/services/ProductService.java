@@ -34,6 +34,21 @@ public class ProductService {
         return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
+    public ResponseEntity<?> updateProduct(Long id, Product newProduct, String role) {
+        if (role.equals("ROLE_ADMIN")) {
+            Product product = productRepository.findById(id)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+            product.setName(newProduct.getName());
+            product.setDescription(newProduct.getDescription());
+            product.setPrice(newProduct.getPrice());
+            product.setQuantity(newProduct.getQuantity());
+            productRepository.save(product);
+            return new ResponseEntity<>(product, HttpStatus.CREATED);
+        }
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+    }
+
     public ResponseEntity<?> deleteProduct(Long id, String role) {
         if (role.equals("ROLE_ADMIN")) {
             Product product = productRepository.findById(id)
