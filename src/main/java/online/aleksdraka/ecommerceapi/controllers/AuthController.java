@@ -54,7 +54,7 @@ public class AuthController {
                 .findFirst()
                 .orElse("ROLE_USER");
 
-        logger.info(user.getUsername() + " " + role);
+        logger.info(user.getUsername() + "| " + role + "| " + user.getId());
         return jwtUtils.generateToken(userDetails.getUsername(), role);
     }
 }
