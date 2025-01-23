@@ -1,5 +1,6 @@
 package online.aleksdraka.ecommerceapi.controllers;
 
+import lombok.extern.slf4j.Slf4j;
 import online.aleksdraka.ecommerceapi.config.JwtUtils;
 import online.aleksdraka.ecommerceapi.models.User;
 import online.aleksdraka.ecommerceapi.services.CustomUserDetailsService;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.logging.Logger;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -54,7 +56,7 @@ public class AuthController {
                 .findFirst()
                 .orElse("ROLE_USER");
 
-        logger.info(user.getUsername() + "| " + role + "| " + user.getId());
+        logger.info(user.getUsername() + "| " + role + " | " + user.getId());
         return jwtUtils.generateToken(userDetails.getUsername(), role);
     }
 }
