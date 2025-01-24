@@ -24,8 +24,6 @@ public class Product {
     private BigDecimal price;
     private int quantity;
 
-    // From Product back to Cart
-    // Prevents the cart field from being serialized again
     @ManyToOne
     @JsonBackReference
     private Cart cart;

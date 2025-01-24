@@ -20,21 +20,15 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // From Cart to Product
-    // This annotation ensures the products list is included in the JSON
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Product> products;
 
-    // Cart owns the relationship
-    // Create user_id in cart table
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference
     private User user;
 
-    // For Bidirectional consistency
-    // TODO use bidirectional consistency
     public void addProduct(Product product) {
         products.add(product);
         product.setCart(this);
