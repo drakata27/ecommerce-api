@@ -25,7 +25,6 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        // Convert the single role to a GrantedAuthority
         GrantedAuthority authority = new SimpleGrantedAuthority(user.getRole());
 
         return new org.springframework.security.core.userdetails.User(

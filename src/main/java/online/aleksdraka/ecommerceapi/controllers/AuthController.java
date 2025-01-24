@@ -1,9 +1,11 @@
 package online.aleksdraka.ecommerceapi.controllers;
 
+import lombok.extern.slf4j.Slf4j;
 import online.aleksdraka.ecommerceapi.config.JwtUtils;
 import online.aleksdraka.ecommerceapi.models.User;
 import online.aleksdraka.ecommerceapi.services.CustomUserDetailsService;
 import online.aleksdraka.ecommerceapi.services.UserService;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -12,9 +14,14 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.logging.Logger;
+
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+
+    private final Logger logger = Logger.getLogger(AuthController.class.getName());
 
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
@@ -30,8 +37,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody User user) {
-        userService.registerUser(user.getUsername(), user.getPassword());
-        return ResponseEntity.ok("User registered successfully");
+        return  userService.registerUser(user.getUsername(), user.getPassword());
     }
 
     @PostMapping("/login")
@@ -44,14 +50,12 @@ public class AuthController {
                         ));
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getUsername());
 
-        // Extract the role from the authorities (assuming it's the first one)
         String role = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .findFirst()
                 .orElse("ROLE_USER");
 
-        System.out.println("role" + role);
-
+        logger.info(user.getUsername() + "| " + role + " | " + user.getId());
         return jwtUtils.generateToken(userDetails.getUsername(), role);
     }
 }
