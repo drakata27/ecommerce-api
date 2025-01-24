@@ -22,21 +22,11 @@ public class Cart {
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private List<Product> products;
+    private List<CartItem> items;
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference
     private User user;
-
-    public void addProduct(Product product) {
-        products.add(product);
-        product.setCart(this);
-    }
-
-    public void removeProduct(Product product) {
-        products.remove(product);
-        product.setCart(null);
-    }
 
 }

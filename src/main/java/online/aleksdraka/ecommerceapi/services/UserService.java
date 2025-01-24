@@ -3,6 +3,7 @@ package online.aleksdraka.ecommerceapi.services;
 import online.aleksdraka.ecommerceapi.annotations.RequiresRole;
 import online.aleksdraka.ecommerceapi.dtos.ProductDto;
 import online.aleksdraka.ecommerceapi.models.Cart;
+import online.aleksdraka.ecommerceapi.models.CartItem;
 import online.aleksdraka.ecommerceapi.models.Product;
 import online.aleksdraka.ecommerceapi.models.User;
 import online.aleksdraka.ecommerceapi.repositories.CartRepository;
@@ -12,7 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
@@ -73,35 +76,43 @@ public class UserService {
             return ResponseEntity.ok(cart);
     }
 
-    public ResponseEntity<?> addProductToCart(String username, Long id, List<ProductDto> productsDto) {
-        Cart cart = cartRepository.findCartByUserUsername(username)
-                .orElseThrow(() -> new RuntimeException("Cart not found"));
-
+    @Transactional
+    public ResponseEntity<?> addProductToCart(String username, List<ProductDto> productDtos) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (!Objects.equals(id, user.getId())) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        Cart cart = user.getCart();
+        if (cart == null) {
+            cart = new Cart();
+            cart.setUser(user);
+            cart.setItems(new ArrayList<>());
+            user.setCart(cart);
         }
 
-        for (ProductDto productDto : productsDto) {
-            if (productRepository.existsById(productDto.getId())) {
-                Product fetchedProduct = productRepository.findById(productDto.getId())
-                        .orElseThrow(() -> new RuntimeException("Product not found"));
+        for (ProductDto productDto : productDtos) {
+            Product product = productRepository.findById(productDto.getId())
+                    .orElseThrow(() -> new RuntimeException("Product not found"));
 
-                Product product = new Product();
-                product.setId(productDto.getId());
-                product.setName(fetchedProduct.getName());
-                product.setPrice(fetchedProduct.getPrice());
-                product.setQuantity(productDto.getQuantity());
+            // Check if product already exists in cart
+            CartItem existingItem = cart.getItems().stream()
+                    .filter(item -> item.getProduct().getId().equals(product.getId()))
+                    .findFirst()
+                    .orElse(null);
 
-                cart.addProduct(product);
+            if (existingItem != null) {
+                // Update quantity if product is already in the cart
+                existingItem.setQuantity(existingItem.getQuantity() + productDto.getQuantity());
             } else {
-                return new ResponseEntity<>( "Product not found", HttpStatus.NOT_FOUND);
+                // Create a new cart item
+                CartItem newItem = new CartItem();
+                newItem.setProduct(product);
+                newItem.setCart(cart);
+                newItem.setQuantity(productDto.getQuantity());
+                cart.getItems().add(newItem);
             }
         }
 
-        return ResponseEntity.ok(cartRepository.save(cart));
+        cartRepository.save(cart);
+        return ResponseEntity.ok(cart);
     }
-
 }

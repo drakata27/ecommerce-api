@@ -22,7 +22,6 @@ public class Product {
     private String name;
     private String description;
     private BigDecimal price;
-    private int quantity;
 
     @ManyToOne
     @JsonBackReference

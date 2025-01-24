@@ -40,7 +40,6 @@ public class ProductService {
         product.setName(newProduct.getName());
         product.setDescription(newProduct.getDescription());
         product.setPrice(newProduct.getPrice());
-        product.setQuantity(newProduct.getQuantity());
         productRepository.save(product);
         return new ResponseEntity<>(product, HttpStatus.CREATED);
     }

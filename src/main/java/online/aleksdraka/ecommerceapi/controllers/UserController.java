@@ -2,7 +2,6 @@ package online.aleksdraka.ecommerceapi.controllers;
 
 import online.aleksdraka.ecommerceapi.dtos.ProductDto;
 import online.aleksdraka.ecommerceapi.models.Cart;
-import online.aleksdraka.ecommerceapi.models.Product;
 import online.aleksdraka.ecommerceapi.models.User;
 import online.aleksdraka.ecommerceapi.services.UserService;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +40,6 @@ public class UserController {
     @PostMapping("/users/{id}/cart")
     public ResponseEntity<?> addProductsToCart(Authentication authentication, @PathVariable Long id, @RequestBody List<ProductDto> productsDto) {
         String username = authentication.getName();
-        return userService.addProductToCart(username, id, productsDto);
+        return userService.addProductToCart(username, productsDto);
     }
 }
