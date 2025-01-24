@@ -1,6 +1,8 @@
 package online.aleksdraka.ecommerceapi.aspects;
 
 import online.aleksdraka.ecommerceapi.annotations.RequiresRole;
+import online.aleksdraka.ecommerceapi.models.User;
+import online.aleksdraka.ecommerceapi.repositories.UserRepository;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -10,12 +12,18 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
 import java.util.logging.Logger;
 
 @Aspect
 @Component
 public class AuthAspect {
     private final Logger logger = Logger.getLogger(this.getClass().getName());
+    private final UserRepository userRepository;
+
+    public AuthAspect(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Around("@annotation(requiresRole)")
     public Object checkRole(ProceedingJoinPoint joinPoint, RequiresRole requiresRole) throws Throwable {
@@ -32,6 +40,22 @@ public class AuthAspect {
         }
 
         logger.info("Access granted for role: " + userRole);
+        return joinPoint.proceed();
+    }
+
+    @Around("@annotation(online.aleksdraka.ecommerceapi.annotations.VerifyCart)")
+    public Object checkCart(ProceedingJoinPoint joinPoint) throws Throwable {
+        Object[] args = joinPoint.getArgs();
+        String username = (String) args[0];
+        Long id = (Long) args[1];
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!Objects.equals(id, user.getId())) {
+            return new ResponseEntity<>("Cart not found", HttpStatus.NOT_FOUND);
+        }
+
         return joinPoint.proceed();
     }
 }
