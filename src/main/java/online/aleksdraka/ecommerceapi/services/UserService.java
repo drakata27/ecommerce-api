@@ -77,9 +77,13 @@ public class UserService {
     }
 
     @Transactional
-    public ResponseEntity<?> addProductToCart(String username, List<ProductDto> productDtos) {
+    public ResponseEntity<?> addProductToCart(String username, Long id, List<ProductDto> productDtos) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!Objects.equals(id, user.getId())) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
 
         Cart cart = user.getCart();
         if (cart == null) {
@@ -88,6 +92,7 @@ public class UserService {
             cart.setItems(new ArrayList<>());
             user.setCart(cart);
         }
+
 
         for (ProductDto productDto : productDtos) {
             Product product = productRepository.findById(productDto.getId())
