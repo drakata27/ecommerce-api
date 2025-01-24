@@ -1,6 +1,7 @@
 package online.aleksdraka.ecommerceapi.services;
 
 import online.aleksdraka.ecommerceapi.annotations.RequiresRole;
+import online.aleksdraka.ecommerceapi.annotations.VerifyCart;
 import online.aleksdraka.ecommerceapi.dtos.ProductDto;
 import online.aleksdraka.ecommerceapi.models.Cart;
 import online.aleksdraka.ecommerceapi.models.CartItem;
@@ -17,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.logging.Logger;
 
 
@@ -62,22 +62,16 @@ public class UserService {
         return ResponseEntity.ok(userRepository.findUserById(id));
     }
 
-
+    @VerifyCart
     public ResponseEntity<Cart> getCartByUsername(String username, Long id) {
         Cart cart = cartRepository.findCartByUserUsername(username)
                 .orElseThrow(() -> new RuntimeException("Cart not found"));
-
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        if (!Objects.equals(id, user.getId())) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
             return ResponseEntity.ok(cart);
     }
 
     @Transactional
-    public ResponseEntity<?> addProductToCart(String username, List<ProductDto> productDtos) {
+    @VerifyCart
+    public ResponseEntity<?> addProductToCart(String username, Long id, List<ProductDto> productDtos) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -88,6 +82,7 @@ public class UserService {
             cart.setItems(new ArrayList<>());
             user.setCart(cart);
         }
+
 
         for (ProductDto productDto : productDtos) {
             Product product = productRepository.findById(productDto.getId())
