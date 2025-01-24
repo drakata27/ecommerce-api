@@ -1,6 +1,7 @@
 package online.aleksdraka.ecommerceapi.controllers;
 
 import online.aleksdraka.ecommerceapi.dtos.ProductDto;
+import online.aleksdraka.ecommerceapi.dtos.StripeResponse;
 import online.aleksdraka.ecommerceapi.models.Cart;
 import online.aleksdraka.ecommerceapi.models.User;
 import online.aleksdraka.ecommerceapi.services.UserService;
@@ -42,4 +43,14 @@ public class UserController {
         String username = authentication.getName();
         return userService.addProductToCart(username, productsDto);
     }
+
+//    @PostMapping("/users/{id}/cart/checkout")
+//    public ResponseEntity<StripeResponse> checkoutCart(
+//            Authentication authentication,
+//            @PathVariable Long id,
+//            @RequestBody List<ProductDto> productsDto
+//    ) {
+//
+//    }
+
 }
