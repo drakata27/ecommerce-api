@@ -1,12 +1,12 @@
 package online.aleksdraka.ecommerceapi.services;
 
 import online.aleksdraka.ecommerceapi.annotations.RequiresRole;
+import online.aleksdraka.ecommerceapi.exceptions.EntityNotFoundException;
 import online.aleksdraka.ecommerceapi.models.Product;
 import online.aleksdraka.ecommerceapi.repositories.ProductRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ public class ProductService {
 
     public Product getProductById(Long id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
     }
 
     @RequiresRole("ROLE_ADMIN")
@@ -35,7 +35,7 @@ public class ProductService {
     @RequiresRole("ROLE_ADMIN")
     public ResponseEntity<Product> updateProduct(Long id, Product newProduct) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
 
         product.setName(newProduct.getName());
         product.setDescription(newProduct.getDescription());
@@ -47,7 +47,7 @@ public class ProductService {
     @RequiresRole("ROLE_ADMIN")
     public ResponseEntity<?> deleteProduct(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
         productRepository.delete(product);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

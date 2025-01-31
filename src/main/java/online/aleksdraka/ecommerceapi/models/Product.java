@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @Setter
@@ -23,7 +24,11 @@ public class Product {
     private String description;
     private BigDecimal price;
 
-    @ManyToOne
+//    @ManyToOne
+//    @JsonBackReference
+//    private Cart cart;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference
-    private Cart cart;
+    private List<CartItem> cartItems;
 }

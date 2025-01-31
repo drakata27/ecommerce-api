@@ -7,6 +7,7 @@ import com.stripe.param.checkout.SessionCreateParams;
 import online.aleksdraka.ecommerceapi.annotations.VerifyCart;
 import online.aleksdraka.ecommerceapi.dtos.ProductDto;
 import online.aleksdraka.ecommerceapi.dtos.StripeResponse;
+import online.aleksdraka.ecommerceapi.exceptions.EntityNotFoundException;
 import online.aleksdraka.ecommerceapi.models.Product;
 import online.aleksdraka.ecommerceapi.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,7 +49,7 @@ public class StripeService {
             Product product = products.stream()
                     .filter(p -> p.getId().equals(productDto.getId()))
                     .findFirst()
-                    .orElseThrow(() -> new RuntimeException("Product not found for ID: " + productDto.getId()));
+                    .orElseThrow(() -> new EntityNotFoundException("Product not found for ID: " + productDto.getId()));
 
             SessionCreateParams.LineItem.PriceData.ProductData productData = SessionCreateParams.LineItem.PriceData.ProductData.builder()
                     .setName(product.getName())
